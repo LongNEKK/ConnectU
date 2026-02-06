@@ -51,17 +51,28 @@ public:
     // Task: Add a new post to the FRONT of the list (O(1))
     void addPost(int pid, int uid, string content, int likes, long time) {
         // TODO: LAB 1
-
-
+        Post* newPost = new Post(pid, uid, content, likes, time);
+        if (head == nullptr) {
+            head = newPost; // empty list, add at beginning
+        } else {
+            newPost->next = head; // move first node forward, add new post to beginning
+            head = newPost;
+        }
+        //This is O(1) time complexity for insertion as the list is not traversed, and add operations
+        // are singular constant-time insertions. 
     }
 
     void printTimeline() {
         Post* current = head;
         if (!current) { cout << "  (No posts yet)" << endl; return; }
-        
+    
         // Task: Traverse the linked list and print content
         // TODO: LAB 1
-
+        while(current!=nullptr){
+            cout << current -> content << endl;
+            current = current -> next; 
+        }
+        return; 
     }
 };
 
@@ -461,7 +472,7 @@ void showMainMenu() {
         else if (choice == 3) {
             // SAFETY: Commented out to prevent data loss on initial run.
             // Students must uncomment this ONLY when Lab 1 is complete.
-            // saveData(); 
+            saveData(); 
             cout << "Goodbye! " << endl;
         }
     }
