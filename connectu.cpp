@@ -48,9 +48,9 @@ public:
     Post* head;
     Timeline() : head(nullptr) {}
 
-    // Task: Add a new post to the FRONT of the list (O(1))
+    
     void addPost(int pid, int uid, string content, int likes, long time) {
-        // TODO: LAB 1
+     
         Post* newPost = new Post(pid, uid, content, likes, time);
         if (head == nullptr) {
             head = newPost; // empty list, add at beginning
@@ -67,9 +67,8 @@ public:
         if (!current) { cout << "  (No posts yet)" << endl; return; }
     
         // Task: Traverse the linked list and print content
-        // TODO: LAB 1
         while(current!=nullptr){
-            cout << current -> content << endl;
+            cout << current -> content << endl; // As long as the current pointer value is not null, the list will be traversed
             current = current -> next; 
         }
         return; 
@@ -169,9 +168,21 @@ private:
     static const int TABLE_SIZE = 10007; 
     HashNode** table;
 
-    unsigned long hashFunction(string key) {
-        // TODO: LAB 2
-        return 0; 
+    unsigned long hashFunction(string key) { // implemented polynomial rolling hash function
+        int length = key.length();
+
+        const int prime = 31; 
+        const unsigned long largePrime = 1000000007; 
+        unsigned long hash = 0;
+
+        unsigned long pow = 1;
+        
+        for(int i = 0; i < length; i++){
+            hash = (hash + (unsigned char)key[i] * pow) % largePrime; // retrieves numerical value of string/digit/special chars. Casted as an unsigned long because it might be very large  
+            pow = (pow * prime) % largePrime; 
+        }
+        unsigned long index = hash % TABLE_SIZE;
+        return hash % TABLE_SIZE; // If the hash is larger than the table, this makes the hash fit. 
     }
 
 public:
@@ -180,15 +191,41 @@ public:
         for (int i = 0; i < TABLE_SIZE; i++) table[i] = nullptr;
     }
 
-    void put(string key, User* user) { /* TODO: LAB 2 */ }
+    void put(string key, User* user) { 
+        int index = hashFunction(key); // calculate hashMap location and traverses list to make sure value doesn't already exist
+        HashNode* curr = table[index];
+
+
+        while(curr != nullptr){
+            if (curr -> key == key){ // exits if already added to map
+                curr -> value = user;
+        
+                return;
+            }
+            curr = curr -> next;
+        }
+    
+        HashNode* addUser = new HashNode(key, user); // inserts new user node to the front of the linked list at a table index i.e. chaining
+        addUser -> next = table[index];
+        table[index] =  addUser; 
+   
+    
+    }
 
     User* get(string key) {
-        // --- TEMPORARY FALLBACK FOR LAB 1 ---
-        for(User* u : allUsers) {
-            if (u->username == key) return u;
+        int index = hashFunction(key); // calculate hashMap index and traverse linked list at an index location to find if it exists  
+     
+        HashNode* curr = table[index];
+
+        while(curr != nullptr){
+            if(curr -> key == key){
+                return curr -> value; // returns if found
+            }
+            curr = curr -> next;
         }
-        // TODO: LAB 2 - REPLACE ABOVE WITH HASH LOOKUP
-        return nullptr;
+         std::cout << "User not found." << std::endl;
+        return nullptr; // doesn't exist in hashMap
+        
     }
 };
 
