@@ -38,7 +38,10 @@ struct Post {
         
     // TODO: LAB 3 - Implement Scoring Logic
     double getScore() {
-        return 0.0; 
+        double hoursOld = (time(nullptr) - timestamp)/3600; 
+        
+        double score = (likes*10) + (1000/(hoursOld) + 1); // likes and recency are weighted in score
+        return score; 
     }
 };
 
@@ -143,13 +146,63 @@ private:
     Post* heap[1000]; 
     int size;
 
-    void heapifyDown(int index) { /* TODO: LAB 3 */ }
-    void heapifyUp(int index) { /* TODO: LAB 3 */ }
+    void heapifyDown(int index) { 
+        int largest = index;
+        int left = 2*index + 1;
+        int right = 2*index + 2; //calculate index of three nodes to compare
+        
+        if (left < size && heap[left] -> getScore() > heap[largest] -> getScore()){
+            largest = left;
+        }
+        //largest node has to be calculated between the two children and parent so root can sink
+        if (right < size && heap[right] -> getScore() > heap[largest] -> getScore()){
+            largest = right;
+        }
+
+        //swap is called if root is not largest, and continues until root is largest fo maxHeap property
+        if (largest != index){
+            swap(heap[index], heap[largest]);
+            heapifyDown(largest);
+        }
+    }
+
+    void heapifyUp(int index) { 
+        while (index != 0){ //child node that is largest node bubbles up towards root
+            int parent = (index - 1 )/2;
+            if(heap[parent]-> getScore() < heap[index] -> getScore()){ // compares likes and swaps
+                swap(heap[parent], heap[index]);
+                index = parent;
+            } else { // when child finds its proper position, loop ends
+                break;
+            }
+        }
+     }
 
 public:
     FeedHeap() : size(0) {}
-    void push(Post* p) { /* TODO: LAB 3 */ }
-    Post* popMax() { return nullptr; /* TODO: LAB 3 */ }
+    void push(Post* p) { 
+        if (size==1000){
+            cout << "Full Heap" << endl;
+            return;
+        }
+        //if heap has room, node is added at the end and heapifyUp is called to maintain maxHeap
+        heap[size] = p;
+        heapifyUp(size);
+        size++;
+    }
+ 
+    //if heap is not empty, node is removed and overwritten with the next child. HeapifyDown is called to maintain MaxHeap.
+    Post* popMax() { 
+        if (size == 0){
+            cout << "Empty Heap" << endl;
+            return nullptr;
+    }   
+        Post* maxPost = heap[0];
+        heap[0] = heap[size - 1];
+        heapifyDown(size);
+        size--;
+        return maxPost; 
+}
     bool isEmpty() { return size == 0; }
 };
 
