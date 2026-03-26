@@ -199,7 +199,7 @@ public:
     }   
         Post* maxPost = heap[0];
         heap[0] = heap[size - 1];
-        heapifyDown(size);
+        heapifyDown(0);
         size--;
         return maxPost; 
 }
