@@ -52,6 +52,7 @@ public:
     Timeline() : head(nullptr) {}
 
     
+    
     void addPost(int pid, int uid, string content, int likes, long time) {
      
         Post* newPost = new Post(pid, uid, content, likes, time);
@@ -137,18 +138,18 @@ BSTNode* FriendBST::insert(BSTNode* node, User* u) {
         return new BSTNode(u);
     }
     if (node -> user -> username < u -> username ){
-        node -> right = insert(node->right, u);
+        node -> right = insert(node->right, u); // if node is larger, it goes to the right subtree
     }
     if (node -> user -> username > u -> username){
-        node -> left = insert(node -> left, u);
+        node -> left = insert(node -> left, u); // if node is smaller, it goes to the left subtree
     }
     return node;
 }
 void FriendBST::printInOrder(BSTNode* node) {
     if (node == nullptr) return;
-    printInOrder(node -> left);
+    printInOrder(node -> left); // left subtree is traversed first recursively
     cout << node -> user -> username << endl;
-    printInOrder(node -> right);
+    printInOrder(node -> right); // only after left is fully traversed
 }
 
 // TODO: LAB 3 - Max Heap
@@ -358,11 +359,33 @@ void addFriendship(User* requester, User* target) {
     cout << "\n[SUCCESS] You are now friends with @" << target->username << endl;
 }
 
-// TODO: LAB 5 - Breadth First Search
 void recommendFriends(User* startUser) {
-    cout << "\n[GRAPH ANALYSIS] Finding friends of friends..." << endl;
-    // TODO: LAB 5
+    if(!startUser) return;
+
+    queue<User*> connections;
+    set<int> seen;
+
+    //included in the visited list so that we don't friend ourselves
+    seen.insert(startUser -> userId);
+
+    for (User* friendUser: startUser -> friends){
+        seen.insert(friendUser->userId);// visited nodes are tracked
+        connections.push(friendUser); //Friends are added to queue to access level 2 connections
+    }
+
+    while(!connections.empty()){
+        User* current = connections.front(); 
+        connections.pop();
+
+        for(User* potentialFriend : current -> friends){ // traces down a friend's friends
+            if(seen.find(potentialFriend->userId) == seen.end()){ // unseen potential friend
+                cout << "Recommended friend: " << potentialFriend -> username << endl;
+                seen.insert(potentialFriend -> userId);
+            }
+        }
+    }
 }
+
 
 // ==========================================
 // FILE I/O 
